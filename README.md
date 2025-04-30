@@ -1,1 +1,1 @@
-# expenseTracker
+# sports-management-fe
