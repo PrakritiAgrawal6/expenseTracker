@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Function to prepare chart data from transactions
+  // Function to prepare chart data from the transactions
   const prepareChartData = (transactions: Transaction[]) => {
     const incomeCategories: { [key: string]: number } = transactions.filter(t => t.type === 'income').reduce((acc: any, transaction) => {
       acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
