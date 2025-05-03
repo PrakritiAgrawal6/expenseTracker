@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+import { Formik, Form } from 'formik';
 import { Transaction } from '../interfaces/transaction';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaTrash } from 'react-icons/fa';
+import { transactionValidationSchema } from '../schemas/transactionSchema';
+import FormField from '../core/Formfield';
 
+//Transaction page for adding and showing expenses
 const TransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [page, setPage] = useState(1);
@@ -15,22 +17,23 @@ const TransactionsPage: React.FC = () => {
 
   useEffect(() => {
     fetchTransactions(page, limit);
-  }, [page]);
+  }, [page, limit]);
 
+    //Function to fetch transaction
   const fetchTransactions = async (page: number, limit: number) => {
     try {
       const response = await fetch(`http://localhost:8080/api/v1/transactions?page=${page}&limit=${limit}`, {
         method: 'GET',
       });
       const data = await response.json();
-      setTransactions(data.data);
-      console.log('transactions', transactions[0].category)
-      setTotalTransactions(data.data.length);
+      setTransactions(data?.data);
+      setTotalTransactions(data?.data?.length);
     } catch (error: any) {
       toast.error('Error fetching transactions', error);
     }
   };
 
+  //Function to add transaction
   const addTransaction = async (transaction: Omit<Transaction, '_id'>) => {
     try {
       await fetch('http://localhost:8080/api/v1/transactions', {
@@ -47,6 +50,7 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
+    //Function to delete transaction
   const deleteTransaction = async (id: string) => {
     const deletecategory = transactions[0].category
   const isConfirmed = window.confirm(`Are you sure you want to delete the transaction for "${deletecategory}"?`);
@@ -69,6 +73,7 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
+  //To get the current date and time of transaction
   const getCurrentDateTime = (): string => {
     const now = new Date();
     return now.toISOString().slice(0, 16);
@@ -87,82 +92,34 @@ const TransactionsPage: React.FC = () => {
               createdBy: '680b6120e99aa38d880cba7f',
               title: '',
               amount: 0,
-              type: 'income',
+              type: '',
               date: '',
               category: ''
             }}
-            validationSchema={Yup.object({
-              title: Yup.string().required('Title is Required'),
-              amount: Yup.number().required('Amount is Required').positive('Must be positive'),
-              type: Yup.string().oneOf(['income', 'expense']).required('Required'),
-              date: Yup.date().required('Date is Required'),
-              category: Yup.string().required('Category is Required')
-            })}
+            validationSchema={transactionValidationSchema}
             onSubmit={(values: any, { resetForm }) => {
               addTransaction(values);
               resetForm();
             }}
           >
+            {/* Using Fieldblock as reusable component for Add Transaction feature */}
             <Form className="mb-4">
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Title<span className="text-red-500">*</span></label>
-                <Field
-                  name="title"
-                  type="text"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                <ErrorMessage name="title" component="div" className="text-red-500 text-sm" />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Amount(₹)<span className="text-red-500">*</span></label>
-                <Field
-                  name="amount"
-                  type="number"
-                  step="0.01"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                <ErrorMessage name="amount" component="div" className="text-red-500 text-sm" />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Type<span className="text-red-500">*</span></label>
-                <Field
-                  name="type"
-                  as="select"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value="income">Income</option>
-                  <option value="expense">Expense</option>
-                </Field>
-                <ErrorMessage name="type" component="div" className="text-red-500 text-sm" />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Date and Time<span className="text-red-500">*</span></label>
-                <Field
-                  name="date"
-                  type="datetime-local"
-                  max={getCurrentDateTime()}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                <ErrorMessage name="date" component="div" className="text-red-500 text-sm" />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Category<span className="text-red-500">*</span></label>
-                <Field
-                  name="category"
-                  type="text"
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                <ErrorMessage name="category" component="div" className="text-red-500 text-sm" />
-              </div>
-              <button
-                type="submit"
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-              >
+              <FormField label="Title" name="title" type="text" />
+              <FormField label="Amount(₹)" name="amount" type="number" step="0.01" />
+              <FormField label="Type" name="type" as="select" options={[
+                { value: '', label: 'Select' },
+                { value: 'income', label: 'Income' },
+                { value: 'expense', label: 'Expense' }
+              ]} />
+              <FormField label="Date and Time" name="date" type="datetime-local" max={getCurrentDateTime()} />
+              <FormField label="Category" name="category" type="text" />
+              <button type="submit" className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
                 Add Transaction
               </button>
             </Form>
           </Formik>
         </div>
+        {/* Transaction List component */}
         <div className="w-full md:w-1/2 md:pl-4">
           <h2 className="text-xl font-bold mb-2">Transaction List</h2>
           <table className="min-w-full bg-white">
@@ -196,6 +153,7 @@ const TransactionsPage: React.FC = () => {
               ))}
             </tbody>
           </table>
+          {/* Pagination */}
           <div className="flex justify-between mt-4">
             <button
               onClick={() => setPage(page - 1)}
@@ -217,6 +175,7 @@ const TransactionsPage: React.FC = () => {
       </div>
     </div>
   );
+  
 };
 
 export default TransactionsPage;

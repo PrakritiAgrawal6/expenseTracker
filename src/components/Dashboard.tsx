@@ -6,10 +6,13 @@ import { Transaction } from '../interfaces/transaction';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard: React.FC = () => {
+  // State to store transactions
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  // State to store chart data
   const [chartData, setChartData] = useState<any>({
     labels: [],
     datasets: [
@@ -29,13 +32,16 @@ const Dashboard: React.FC = () => {
       }
     ]
   });
+  // State to store total income and expenses
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
 
+  // Fetch transactions when the component mounts
   useEffect(() => {
     fetchTransactions();
   }, []);
 
+  // Function to fetch transactions from the API
   const fetchTransactions = async () => {
     try {
       const response = await fetch('http://localhost:8080/api/v1/transactions', {
@@ -43,26 +49,27 @@ const Dashboard: React.FC = () => {
       });
       const data = await response.json();
       setTransactions(data.data);
-      console.log('transactions', transactions)
       prepareChartData(data.data);
+      console.log(transactions);
     } catch (error: any) {
       toast.error('Error fetching transactions', error);
     }
   };
 
+  // Function to prepare chart data from transactions
   const prepareChartData = (transactions: Transaction[]) => {
-    const incomeCategories = transactions.filter(t => t.type === 'income').reduce((acc, transaction): any => {
+    const incomeCategories: { [key: string]: number } = transactions.filter(t => t.type === 'income').reduce((acc: any, transaction) => {
       acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
       return acc;
     }, {});
 
-    const expenseCategories = transactions.filter(t => t.type === 'expense').reduce((acc, transaction): any => {
+    const expenseCategories: { [key: string]: number } = transactions.filter(t => t.type === 'expense').reduce((acc: any, transaction) => {
       acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
       return acc;
     }, {});
 
-    const totalIncome = Object.values(incomeCategories).reduce((acc, amount) => acc + amount, 0);
-    const totalExpenses = Object.values(expenseCategories).reduce((acc, amount) => acc + amount, 0);
+    const totalIncome = Object.values(incomeCategories).reduce((acc: number, amount: number) => acc + amount, 0 as number);
+    const totalExpenses = Object.values(expenseCategories).reduce((acc: number, amount: number) => acc + amount, 0 as number);
 
     setTotalIncome(totalIncome);
     setTotalExpenses(totalExpenses);
@@ -131,22 +138,22 @@ const Dashboard: React.FC = () => {
           <p className="mb-4"><strong>Total Expenses:</strong> ₹{totalExpenses}</p>
           <h2 className="text-xl font-semibold mb-2">Income</h2>
           <ul>
-            {chartData.labels.map((label, index) => (
+            {chartData.labels.map((label: string, index: number) => (
               chartData.datasets[0].data[index] > 0 && (
                 <li key={index} className="flex justify-between">
                   <span>{label}</span>
-                  <span>₹{chartData.datasets[0].data[index]}</span>
+                  <span>₹{chartData?.datasets[0]?.data[index]}</span>
                 </li>
               )
             ))}
           </ul>
           <h2 className="text-xl font-semibold mt-4 mb-2">Expenses</h2>
           <ul>
-            {chartData.labels.map((label, index) => (
+            {chartData.labels.map((label: string, index: number) => (
               chartData.datasets[1].data[index] > 0 && (
                 <li key={index} className="flex justify-between">
                   <span>{label}</span>
-                  <span>₹{chartData.datasets[1].data[index]}</span>
+                  <span>₹{chartData?.datasets[1]?.data[index]}</span>
                 </li>
               )
             ))}
