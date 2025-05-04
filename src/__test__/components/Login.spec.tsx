@@ -21,8 +21,6 @@ const mockStoreData: IStore = {
     data: {
       name: "",
       email: "",
-      mobile: "",
-      role: "user"
     },
     isLoading: false,
     error: "",

@@ -7,63 +7,63 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaTrash } from 'react-icons/fa';
 import { transactionValidationSchema } from '../schemas/transactionSchema';
 import FormField from '../core/Formfield';
+import Paginator from '../core/Paginator';
 
-//Transaction page for adding and showing expenses
+// Transaction page for adding and showing expenses
 const TransactionsPage: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(5);
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const limit = 5;
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetchTransactions(page, limit);
-  }, [page, limit]);
+    fetchTransactions();
+  }, []);
 
-    //Function to fetch transaction
-  const fetchTransactions = async (page: number, limit: number) => {
+  // Function to fetch all transactions
+  const fetchTransactions = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/transactions?page=${page}&limit=${limit}`, {
+      const response = await fetch(`${apiUrl}/transactions`, {
         method: 'GET',
       });
       const data = await response.json();
       setTransactions(data?.data);
-      setTotalTransactions(data?.data?.length);
+      setTotalTransactions(data?.data.length);
     } catch (error: any) {
       toast.error('Error fetching transactions', error);
     }
   };
 
-  //Function to add transaction
+  // Function to add transaction
   const addTransaction = async (transaction: Omit<Transaction, '_id'>) => {
     try {
-      await fetch('http://localhost:8080/api/v1/transactions', {
+      await fetch(`${apiUrl}/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(transaction),
       });
-      fetchTransactions(page, limit); // Refresh the transactions list after adding a new transaction
+      fetchTransactions(); // Refresh the transactions list after adding a new transaction
       toast.success('Transaction added successfully!');
     } catch (error: any) {
       toast.error('Error adding transaction', error);
     }
   };
 
-    //Function to delete transaction
-  const deleteTransaction = async (id: string) => {
-    const deletecategory = transactions[0].category
-  const isConfirmed = window.confirm(`Are you sure you want to delete the transaction for "${deletecategory}"?`);
+  // Function to delete transaction
+  const deleteTransaction = async (id: string, title: string) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete the transaction for "${title}"?`);
 
-    if(!isConfirmed) return;
+    if (!isConfirmed) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/transactions/${id}`, {
+      const response = await fetch(`${apiUrl}/transactions/${id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-
-        fetchTransactions(page, limit); // Refresh the transactions list after deleting a transaction
+        fetchTransactions(); // Refresh the transactions list after deleting a transaction
         toast.success('Transaction deleted successfully!');
       } else {
         toast.error('Error deleting transaction');
@@ -73,13 +73,21 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
-  //To get the current date and time of transaction
+  // To get the current date and time of transaction
   const getCurrentDateTime = (): string => {
     const now = new Date();
     return now.toISOString().slice(0, 16);
   };
 
   const totalPages = Math.ceil(totalTransactions / limit);
+
+  // Handle pagination
+  const handlePagination = (page: number) => {
+    setPage(page);
+  };
+
+  // Get transactions for the current page
+  const paginatedTransactions = transactions.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="container mx-auto p-4">
@@ -102,7 +110,6 @@ const TransactionsPage: React.FC = () => {
               resetForm();
             }}
           >
-            {/* Using Fieldblock as reusable component for Add Transaction feature */}
             <Form className="mb-4">
               <FormField label="Title" name="title" type="text" />
               <FormField label="Amount(₹)" name="amount" type="number" step="0.01" />
@@ -119,7 +126,6 @@ const TransactionsPage: React.FC = () => {
             </Form>
           </Formik>
         </div>
-        {/* Transaction List component */}
         <div className="w-full md:w-1/2 md:pl-4">
           <h2 className="text-xl font-bold mb-2">Transaction List</h2>
           <table className="min-w-full bg-white">
@@ -134,7 +140,7 @@ const TransactionsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction) => (
+              {paginatedTransactions.map((transaction) => (
                 <tr key={transaction._id}>
                   <td className="py-2 px-4 border-b">{transaction.title}</td>
                   <td className="py-2 px-4 border-b">₹{transaction.amount}</td>
@@ -143,7 +149,7 @@ const TransactionsPage: React.FC = () => {
                   <td className="py-2 px-4 border-b">{transaction.category}</td>
                   <td className="py-2 px-4 border-b">
                     <button
-                      onClick={() => deleteTransaction(transaction._id)}
+                      onClick={() => deleteTransaction(transaction._id, transaction.title)}
                       className="px-2 py-1 bg-red-500 text-white rounded-md"
                     >
                       <FaTrash />
@@ -154,28 +160,15 @@ const TransactionsPage: React.FC = () => {
             </tbody>
           </table>
           {/* Pagination */}
-          <div className="flex justify-between mt-4">
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
-            >
-              Previous
-            </button>
-            <span>Page {page} of {totalPages}</span>
-            <button
-              onClick={() => setPage(page + 1)}
-              disabled={transactions.length < limit}
-              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
-            >
-              Next
-            </button>
-          </div>
+          <Paginator
+            currentPage={page}
+            totalPages={totalPages}
+            handlePagination={handlePagination}
+          />
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default TransactionsPage;

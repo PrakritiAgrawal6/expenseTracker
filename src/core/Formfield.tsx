@@ -1,5 +1,6 @@
 import { Field, ErrorMessage } from 'formik';
 
+//Interface for form field
 interface FormFieldProps {
   label: string;
   name: string;
@@ -10,6 +11,7 @@ interface FormFieldProps {
   options?: { value: string; label: string }[];
 }
 
+//Reusable component for forms using Formik
 const FormField: React.FC<FormFieldProps> = ({ label, name, type = 'text', as, options, ...props }) => (
   <div className="mb-2">
     <label className="block text-sm font-medium">
