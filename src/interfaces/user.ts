@@ -3,8 +3,6 @@ export interface IUser {
   name: string;
   email: string;
   password?: string;
-  role: "admin" | "user";
-  mobile: string;
 }
 
 export interface IUserLogin {
@@ -16,8 +14,6 @@ export const defaultUser: IUser = {
   name: "",
   email: "",
   password: "",
-  role: "user",
-  mobile: "",
 };
 
 export interface ISlotObject {

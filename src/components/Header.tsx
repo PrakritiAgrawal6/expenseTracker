@@ -13,35 +13,39 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { IStore } from "../interfaces/store";
 import { clearLoginUser } from "../redux/actions/userAction";
-import { capitalizeFirstLetter } from "../utils/functions";
 
+// Header component for navigation and user actions
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
+  // Extracting current user data from Redux store
   const { data: currentUser } = useSelector((store: IStore) => store.user);
 
+  // State to manage the dialog open/close status
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const { email, name } = currentUser;
   const closeDialog = () => setIsDialogOpen(false);
   const openDialog = () => setIsDialogOpen(true);
 
+  // Function to handle user logout
   const logout = () => {
     setIsDialogOpen(false);
     dispatch(clearLoginUser());
     navigate("/");
   };
 
+  // Function to navigate to the dashboard/transaction page
   const goToDashboard = () => {
     navigate("/dashboard");
   };
-
   const goToTransactions = () => {
     navigate("/transactions");
   };
 
   return (
-    <header className="w-full flex justify-between items-center gap-4 sticky top-0 z-50 p-4 bg-gradient-to-r from-green-400 to-blue-500 text-white shadow-lg">
+    <header className="w-full flex flex-wrap justify-between items-center gap-4 sticky p-4 bg-gradient-to-r from-green-400 to-blue-500 text-white shadow-lg">
+      {/* Button to navigate to the dashboard */}
       <button
         onClick={() => navigate("/dashboard")}
         className="flex items-center justify-center"
@@ -51,27 +55,22 @@ const Header = () => {
         </div>
       </button>
       {!isEmpty(email) && (
-        <div className="flex items-center justify-center">
-          {currentUser?.role === "admin" && (
-            <p className="text-xl mx-2">
-              <strong>User:</strong> {capitalizeFirstLetter(currentUser.name)}{" "}
-            </p>
-          )}
+        <div className="flex items-center justify-center flex-wrap gap-2">
           <button
             onClick={goToDashboard}
-            className="border border-white py-2 px-5 rounded-lg mr-2 hover:bg-white hover:text-blue-500 transition"
+            className="border border-white py-2 px-5 rounded-lg hover:bg-white hover:text-blue-500 transition"
           >
             Dashboard
           </button>
           <button
             onClick={goToTransactions}
-            className="border border-white py-2 px-5 rounded-lg mr-2 hover:bg-white hover:text-blue-500 transition"
+            className="border border-white py-2 px-5 rounded-lg hover:bg-white hover:text-blue-500 transition"
           >
             Transactions
           </button>
           <button
             onClick={openDialog}
-            className="border border-white h-10 w-10 hover:bg-white hover:text-blue-500 transition rounded-full"
+            className="border border-white h-10 w-10 hover:bg-white hover:text-blue-500 transition rounded-full flex items-center justify-center"
           >
             {name?.charAt(0)}
           </button>

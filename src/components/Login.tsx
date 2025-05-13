@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Formik, FastField, Form, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
@@ -9,13 +9,19 @@ import { userLogin } from "../redux/actions/userAction";
 import { IStore } from "../interfaces/store";
 
 import "react-toastify/dist/ReactToastify.css";
+import Formfield from "../core/Formfield";
 
+// Login component for user authentication
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Extracting email from Redux store
   const {
     data: { email },
   } = useSelector((state: IStore) => state.user);
+
+  // Function to validate user login and dispatch login action
   const validateUserLogin = (values: IUserLogin) => {
     dispatch(userLogin(values));
   };
@@ -38,45 +44,8 @@ const Login = () => {
           }}
         >
           <Form className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email<span className="text-red-500">*</span>
-              </label>
-              <FastField
-                name="email"
-                type="email"
-                className="w-full px-3 py-2 mt-1 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <ErrorMessage
-                name="email"
-                component={"div"}
-                className="text-sm text-red-600"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password<span className="text-red-500">*</span>
-              </label>
-              <FastField
-                name="password"
-                type="password"
-                className="w-full px-3 py-2 mt-1 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <ErrorMessage
-                name="password"
-                component={"div"}
-                className="text-sm text-red-600"
-              />
-              <div>
-                <button></button>
-              </div>
-            </div>
+            <Formfield label="Email" name="email" type="email" />
+            <Formfield label="Password" name="password" type="password" />
             <button
               type="submit"
               className="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

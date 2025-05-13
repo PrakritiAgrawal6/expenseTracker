@@ -15,16 +15,14 @@ import {
 } from "../../redux/actions/userAction";
 
 const loginDetails = {
-  email: "bapu.pradhan@hcltech.com",
-  password: "Bapu@123",
+  email: "prakriti.agrawal@hcltech.com",
+  password: "prakriti@123",
 };
 
 const user: IUser = {
-  name: "Bapu Pradhan",
-  email: "bapu.pradhan@hcltech.com",
-  password: "Bapu@123",
-  role: "employee",
-  mobile: "",
+  name: "Prakriti Agrawal",
+  email: "prakriti.agrawal@hcltech.com",
+  password: "prakriti@123",
 };
 
 const actions = {

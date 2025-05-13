@@ -17,16 +17,14 @@ const initialState = {
 const state = initialState;
 
 const userDetails: IUser = {
-  name: "Bapu Pradhan",
-  email: "bapu.pradhan@hcltech.com",
-  password: "Bapu@123",
-  mobile: "",
-  role: "admin"
+  name: "Prakriti Agrawal",
+  email: "prakriti.agrawal@hcltech.com",
+  password: "prakriti@123",
 };
 
 const user = {
-  email: "bapu.pradhan@hcltech.com",
-  password: "Bapu@123",
+  email: "prakriti.agrawal@hcltech.com",
+  password: "prakriti@123",
 };
 
 describe("Given loginUserReducer", () => {
